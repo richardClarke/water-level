@@ -3,10 +3,11 @@
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
-<script src="scripts/socket.io.js"></script>
+<script src="/socket.io/socket.io.js"></script>
 
 <div class="container">
     <br>
+    <p id='server-time'></p>
     <div class="jumbotron">
         <h1 class="display-5">Send Water Level</h1>
         <br>
@@ -30,10 +31,16 @@
             console.log(message);
             postMessage(message);
         })
-        getMessages();
+        //getMessages();
     })
 
     socket.on('message', addMessage)
+    
+     var el = document.getElementById('server-time');
+
+      socket.on('time', function(timeString) {
+        el.innerHTML = 'Server time: ' + timeString;
+      });
 
     function addMessage(message){
         $("#messages").append(`<h4> ${message.level} </h4>`)
