@@ -40,7 +40,7 @@
     }
 
     function getMessages() {
-        $.get('http://192.168.1.134:3000/messages', (data) =>{
+        $.get('https://waterlevel001.herokuapp.com:3000/messages', (data) =>{
            // data.forEach(element => {
                //addMessage(element) 
             //});
@@ -50,6 +50,6 @@
     }
 
     function postMessage(message) {
-        $.post('http://192.168.1.134:3000/messages', message);
+        $.post('https://waterlevel001.herokuapp.com:3000/messages', message);
     }
 </script>
