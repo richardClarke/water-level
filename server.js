@@ -9,21 +9,42 @@ const path = require('path');
 const PORT = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, 'index.html');
 
-const app = express()
-    .use((req, res) => res.sendFile(INDEX) )
-    .use(express.static(__dirname))
-    .use(bodyParser.json())
-    .use(bodyParser.urlencoded({extended:false}))
-    .use(function(req, res, next) {
+//const app = express()
+//    .use((req, res) => res.sendFile(INDEX) )
+//    .use(express.static(__dirname))
+//    .use(bodyParser.json())
+//    .use(bodyParser.urlencoded({extended:false}))
+//    .use(function(req, res, next) {
+//        res.header("Access-Control-Allow-Origin", "*");
+//        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+//        res.header("Access-Control-Allow-Headers", "Content-Type");
+//        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")});
+//    //.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+//
+//var http = require('http').Server(app)
+//var io = require('socket.io')(http)
+//var mongoose = require('mongoose')
+
+
+
+var app = express();
+
+app.use(function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
         res.header("Access-Control-Allow-Headers", "X-Requested-With");
         res.header("Access-Control-Allow-Headers", "Content-Type");
-        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")});
-    //.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS");
+        next();
+});
+
+app.use(express.static(__dirname))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended:false}))
 
 var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var mongoose = require('mongoose')
+
 
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
@@ -57,7 +78,7 @@ app.post('/messages', async (req,res) =>{
         if (!message.level){
             return console.error("no level value");
         }         
-        //var savedMessage = await message.save()
+        var savedMessage = await message.save()
 
         console.log("saved")
 
@@ -80,8 +101,4 @@ io.on('connection', (socket) => {
 
 setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
 
-
 var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`));
-//var server = http.listen(3000, () => {
-//    console.log('server is listeneing on port', server.address().port)
-//})

@@ -46,8 +46,7 @@
         $("#messages").append(`<h4> ${message.level} </h4>`)
     }
 
-    function getMessages() {
-        
+    function getMessages() { 
         //$.get('http://localhost:3000/messages', (data) =>{
         $.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
             data.forEach(addMessage);
@@ -56,6 +55,6 @@
 
     function postMessage(message) {
         $.post('https://waterlevel001.herokuapp.com/messages', message);
-       // $.post('http://localhost:3000/messages', message);
+        //$.post('http://localhost:3000/messages', message);
     }
 </script>
