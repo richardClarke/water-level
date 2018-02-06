@@ -76,6 +76,6 @@ mongoose.connect(dbUrl, (err) => {
     console.log('mongo db connection', err)
 })
 
-var server = http.listen(8080, () => {
+var server = http.listen(3000, () => {
     console.log('server is listeneing on port', server.address().port)
 })
