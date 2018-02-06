@@ -1,9 +1,11 @@
 var express = require('express')
 var bodyParser = require('body-parser')
-var app = express()
-var http = require('http').Server(app)
-var io = require('socket.io')(http)
-var mongoose = require('mongoose')
+const path = require('path');
+
+const PORT = process.env.PORT || 3000;
+const INDEX = path.join(__dirname, 'index.html');
+
+var app = express();
 
 app.use(function(req, res, next) {
         res.header("Access-Control-Allow-Origin", "*");
@@ -16,6 +18,10 @@ app.use(function(req, res, next) {
 app.use(express.static(__dirname))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended:false}))
+
+var http = require('http').Server(app)
+var io = require('socket.io')(http)
+var mongoose = require('mongoose')
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
@@ -76,6 +82,7 @@ mongoose.connect(dbUrl, (err) => {
     console.log('mongo db connection', err)
 })
 
-var server = http.listen(3000, () => {
-    console.log('server is listeneing on port', server.address().port)
-})
+var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`));
+//var server = http.listen(3000, () => {
+//    console.log('server is listeneing on port', server.address().port)
+//})
