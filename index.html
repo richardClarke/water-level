@@ -127,8 +127,8 @@
           var chartDiv = document.getElementById('chart_div');
 
           var data = new google.visualization.DataTable();
-          data.addColumn('date', 'Month');
-          data.addColumn('number', "Water Level CM");
+          data.addColumn('datetime', 'Time');
+          data.addColumn('number', "Water Level (cm)");
           data.addColumn('number', "Temperature (Celsius)");
           
             //month / day / hour / minute
@@ -148,26 +148,25 @@
             },
             vAxes: {
               // Adds titles to each axis.
-              0: {title: 'Water Level'},
+              0: {title: 'Water Level (cm)'},
               1: {title: 'Temps (Celsius)'}
             },
-            hAxis: {
-//              ticks: [new Date(2018, 1,1), new Date(2018, 1), new Date(2018, 2), new Date(2018, 3),
-//                      new Date(2018, 4),  new Date(2018, 5), new Date(2018, 6), new Date(2018, 7),
-//                      new Date(2018, 8), new Date(2018, 9), new Date(2018, 10), new Date(2018, 11)
-//                     ]
-            },
-            vAxes: {0: {viewWindowMode:'explicit',
-                      viewWindow:{
-                                  max:150,
-                                  min:0
-                                  }
-                      },
-                  1: {viewWindow:{
-                                  max:50,
-                                  min:-10
-                                  },},
+            hAxis: {title:'Date', showTextEvery : 5,
+                   gridlines: {
+                    count: -1,
+                    units: {
+                      days: {format: ['MMM dd']},
+                      hours: {format: ['HH:mm', 'ha']},
+                    }
                   },
+                  minorGridlines: {
+                    units: {
+                      hours: {format: ['hh:mm:ss a', 'ha']},
+                      minutes: {format: ['HH:mm a Z', ':mm']}
+                    }
+                  }
+                   
+                },
           };
 
         var classicChart = new google.visualization.LineChart(chartDiv);
