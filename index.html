@@ -1,60 +1,151 @@
 <!doctype html>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css">
+<link rel="stylesheet" href="styles.css">
 <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 
 <div class="container">
-    <br>
     <p id='server-time'></p>
-    <div class="jumbotron">
-        <h1 class="display-5">Send Water Level</h1>
-        <br>
+    <br>
+    <div class="display-6">Last recorded Time = <span id="time">0</span></div>
+    <div class="display-6">Last recorded Water Level = <b><span id="waterLevel">0</span> cm</b></div>
+    <div class="display-6">Last recorded Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
+    
+    <br>
+    <div id="chart_div"></div>
+    
+    <div class="testBox">
+        <h3>Test Send Water Level</h3>
         <input id="level" class="form-control" placeholder="level">
         <br>
+        <input id="temp" class="form-control" placeholder="temp">
+        <br>
         <button id="send" class="btn btn-success">Send</button>
-    </div>
-    <div class="display-6">Old Water Levels</div>
-    <div id="messages">
-
     </div>
 </div>
 <script>
     var socket = io()
+    var dbData = []; 
+    var dataReady = false;
+    var el = document.getElementById('server-time');
+    var dataInterval = undefined;
+    
+    socket.on('message', addMessage)
 
+    socket.on('time', function(timeString) {
+        el.innerHTML = 'Server time: ' + timeString;
+    });
+    
+    google.charts.load('current', {'packages':['line', 'corechart']});
+    google.charts.setOnLoadCallback(checkChart);
+    
     $(() => {
         $("#send").click(()=>{
             var currentDate = new Date();
-            console.log(currentDate);
-            var message = {level: $("#level").val(), date:currentDate};
+            var message = {level: $("#level").val(), temp: $("#temp").val(), date:currentDate};
             console.log(message);
             postMessage(message);
-        })
+        }) 
         getMessages();
     })
 
-    socket.on('message', addMessage)
+
     
-     var el = document.getElementById('server-time');
-
-      socket.on('time', function(timeString) {
-        el.innerHTML = 'Server time: ' + timeString;
-      });
-
-    function addMessage(message){
-        $("#messages").append(`<h4> ${message.level} </h4>`)
+    function checkChart(){
+        //if data ready draw chart else set Timeout
+        console.log("check chart data");
+        if (dataReady){
+            clearInterval(dataInterval);
+            console.log("data ready");
+            drawChart();
+        } else {
+            console.log("waiting for all data");
+            if (dataInterval == undefined){
+                dataInterval = setInterval(checkChart, 2000);
+            }
+        }
+    }
+        
+    function monthReturn(inMonth){
+        var monthArray = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+        return monthArray[inMonth];
     }
 
+    function addMessage(message){
+        
+        if (message.temp === undefined){message.temp = 0}
+        if (message.level === undefined){message.level = 0}
+        var inDate = new Date(message.date);
+        
+        // instead of append only replace the line to show last recorded level
+        //$("#messages").append(`<h7> ${message.level} ${message.temp} ${message.date} </h7>`);
+        $("#waterLevel").html(message.level);
+        $("#temperature").html(message.temp);
+        
+        $("#time").html("<b>"+inDate.getDate()+"-"+monthReturn(inDate.getMonth())+"-"+inDate.getFullYear()+" @"+inDate.getHours()+":"+inDate.getMinutes()+"</b>");
+        
+        var singleLine = `${inDate.getFullYear()},${inDate.getMonth()}, ${inDate.getDate()}, ${inDate.getHours()}, ${inDate.getMinutes()}, ${message.level}, ${message.temp}`;
+        var lineData = [];
+        lineData.push(inDate);
+        lineData.push(parseInt(message.level));
+        lineData.push(parseInt(message.temp));
+        dbData.push(lineData);
+    }
+    
+
     function getMessages() { 
-        //$.get('http://localhost:3000/messages', (data) =>{
-        $.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
+        $.get('http://localhost:3000/messages', (data) =>{
+        //$.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
             data.forEach(addMessage);
+            //console.log("dbdata = "+dbData);
+            dataReady = true;
         })
+        
     }
 
     function postMessage(message) {
-        $.post('https://waterlevel001.herokuapp.com/messages', message);
-        //$.post('http://localhost:3000/messages', message);
+        //$.post('https://waterlevel001.herokuapp.com/messages', message);
+        $.post('http://localhost:3000/messages', message);
     }
+    
+    function drawChart() {
+
+          var chartDiv = document.getElementById('chart_div');
+
+          var data = new google.visualization.DataTable();
+          data.addColumn('date', 'Month');
+          data.addColumn('number', "Temperature (Celsius)");
+          data.addColumn('number', "Water Level CM");
+            //month / day / hour / minute
+          //data.addRows([[new Date(2014, 0,3,09,15),  -.5,  5.7]]);
+          for(var i=0; i<dbData.length; i++){
+             data.addRows([dbData[i]]);
+             console.log(dbData[i]); 
+          }
+          
+          var materialOptions = {
+            chart: {
+              title: 'Water Level and Temperature in Bottom Pond Throughout the Year'
+            },
+            width: 900,
+            height: 500,
+            series: {
+              // Gives each series an axis name that matches the Y-axis below.
+              0: {axis: 'Temps'},
+              1: {axis: 'Level'}
+            },
+            axes: {
+              // Adds labels to each axis; they don't have to match the axis names.
+              y: {
+                Temps: {label: 'Temps (Celsius)'},
+                Level: {label: 'Water Level CM'}
+              }
+            }
+          };
+
+
+        var materialChart = new google.charts.Line(chartDiv);
+        materialChart.draw(data, materialOptions);
+
+    };
 </script>

@@ -53,6 +53,7 @@ var dbUrl = 'mongodb://richard:c0nvertib1e@ds225308.mlab.com:25308/waterlevel'
 
 var Message = mongoose.model('Message', {
     level: String,
+    temp: String,
     date:String
 })
 
