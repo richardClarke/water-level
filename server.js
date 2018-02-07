@@ -60,14 +60,13 @@ app.post('/messages', async (req,res) =>{
         
         if (!message.level){
             return console.error("no level value");
-        }         
-        var savedMessage = await message.save()
-
-        console.log("saved")
-
-        io.emit('message', message)
-
-        res.sendStatus(200); // 200 is ok
+        } else{
+            var savedMessage = await message.save()
+            console.log("saved")
+            io.emit('message', message)
+            res.sendStatus(200); // 200 is ok
+        }        
+        
 
     } catch (error) {
         res.sendStatus(500);
