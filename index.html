@@ -94,8 +94,8 @@
     
 
     function getMessages() { 
-        $.get('http://localhost:3000/messages', (data) =>{
-        //$.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
+       // $.get('http://localhost:3000/messages', (data) =>{
+        $.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
             data.forEach(addMessage);
             //console.log("dbdata = "+dbData);
             dataReady = true;
@@ -104,8 +104,8 @@
     }
 
     function postMessage(message) {
-        //$.post('https://waterlevel001.herokuapp.com/messages', message);
-        $.post('http://localhost:3000/messages', message);
+        $.post('https://waterlevel001.herokuapp.com/messages', message);
+        //$.post('http://localhost:3000/messages', message);
     }
     
     function drawChart() {
