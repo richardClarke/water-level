@@ -128,8 +128,9 @@
 
           var data = new google.visualization.DataTable();
           data.addColumn('date', 'Month');
-          data.addColumn('number', "Temperature (Celsius)");
           data.addColumn('number', "Water Level CM");
+          data.addColumn('number', "Temperature (Celsius)");
+          
             //month / day / hour / minute
           //data.addRows([[new Date(2014, 0,3,09,15),  -.5,  5.7]]);
           for(var i=0; i<dbData.length; i++){
@@ -147,8 +148,8 @@
             },
             vAxes: {
               // Adds titles to each axis.
-              0: {title: 'Temps (Celsius)'},
-              1: {title: 'Water Level'}
+              0: {title: 'Water Level'},
+              1: {title: 'Temps (Celsius)'}
             },
             hAxis: {
 //              ticks: [new Date(2018, 1,1), new Date(2018, 1), new Date(2018, 2), new Date(2018, 3),
@@ -158,13 +159,13 @@
             },
             vAxes: {0: {viewWindowMode:'explicit',
                       viewWindow:{
-                                  max:50,
-                                  min:-10
+                                  max:150,
+                                  min:0
                                   }
                       },
                   1: {viewWindow:{
-                                  max:150,
-                                  min:0
+                                  max:50,
+                                  min:-10
                                   },},
                   },
           };
