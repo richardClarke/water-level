@@ -5,24 +5,31 @@
 <script src="/socket.io/socket.io.js"></script>
 
 <div class="container">
-    <p id='server-time'></p>
-    <br>
-    <div class="display-6">Last recorded Time = <span id="time">0</span></div>
-    <div class="display-6">Last recorded Water Level = <b><span id="waterLevel">0</span> cm</b></div>
-    <div class="display-6">Last recorded Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
-    
-    <br>
-    <div id="chart_div"></div>
-    
+    <!--    <p id='server-time'></p>-->
+      <div><h1>Water Level and Temperature in Pond</h1></div>  
+    <div class="chartBackground">
+        <div class="chartHolder">
+            <div id="chart_div"></div>
+        </div>
+        <div class="current">
+            <h3>Last Recorded Values</h3>
+            <div class="vals">Time = <span id="time">0</span></div>
+            <div class="vals">Water Level = <b><span id="waterLevel">0</span> cm</b></div>
+            <div class="vals">Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
+        </div>
+    </div>
+
     <div class="testBox">
-        <h3>Test Send Water Level</h3>
+        <h4>Test Send Water Level</h4>
         <input id="level" class="form-control" placeholder="level">
         <br>
         <input id="temp" class="form-control" placeholder="temp">
         <br>
         <button id="send" class="btn btn-success">Send</button>
     </div>
+    
 </div>
+
 <script>
     var socket = io()
     var dbData = []; 
@@ -30,19 +37,20 @@
     var el = document.getElementById('server-time');
     var dataInterval = undefined;
     
+    var pathname = window.location.href;
+        
     socket.on('message', addMessage)
 
-    socket.on('time', function(timeString) {
-        el.innerHTML = 'Server time: ' + timeString;
-    });
+//    socket.on('time', function(timeString) {
+//        el.innerHTML = 'Server time: ' + timeString;
+//    });
     
     google.charts.load('current', {'packages':['line', 'corechart']});
     google.charts.setOnLoadCallback(checkChart);
     
     $(() => {
         $("#send").click(()=>{
-            var currentDate = new Date();
-            var message = {level: $("#level").val(), temp: $("#temp").val(), date:currentDate};
+            var message = {level: $("#level").val(), temp: $("#temp").val()};
             console.log(message);
             postMessage(message);
         }) 
@@ -82,9 +90,8 @@
         $("#waterLevel").html(message.level);
         $("#temperature").html(message.temp);
         
-        $("#time").html("<b>"+inDate.getDate()+"-"+monthReturn(inDate.getMonth())+"-"+inDate.getFullYear()+" @"+inDate.getHours()+":"+inDate.getMinutes()+"</b>");
+        $("#time").html("<b>"+inDate.getDate()+" "+monthReturn(inDate.getMonth())+" "+inDate.getFullYear()+" @"+inDate.getHours()+":"+inDate.getMinutes()+"</b>");
         
-        var singleLine = `${inDate.getFullYear()},${inDate.getMonth()}, ${inDate.getDate()}, ${inDate.getHours()}, ${inDate.getMinutes()}, ${message.level}, ${message.temp}`;
         var lineData = [];
         lineData.push(inDate);
         lineData.push(parseInt(message.level));
@@ -94,18 +101,25 @@
     
 
     function getMessages() { 
-       // $.get('http://localhost:3000/messages', (data) =>{
-        $.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
-            data.forEach(addMessage);
-            //console.log("dbdata = "+dbData);
-            dataReady = true;
-        })
-        
+        if (pathname == "http://localhost:3000/") {
+            $.get('http://localhost:3000/messages', (data) =>{
+               data.forEach(addMessage);
+               dataReady = true; 
+            })      
+        } else {
+            $.get('https://waterlevel001.herokuapp.com/messages', (data) =>{
+                data.forEach(addMessage);
+                dataReady = true;
+            })
+        }        
     }
 
     function postMessage(message) {
-        $.post('https://waterlevel001.herokuapp.com/messages', message);
-        //$.post('http://localhost:3000/messages', message);
+        if (pathname == "http://localhost:3000/") {
+           $.post('http://localhost:3000/messages', message);
+        } else {
+           $.post('https://waterlevel001.herokuapp.com/messages', message); 
+        }        
     }
     
     function drawChart() {
@@ -120,32 +134,43 @@
           //data.addRows([[new Date(2014, 0,3,09,15),  -.5,  5.7]]);
           for(var i=0; i<dbData.length; i++){
              data.addRows([dbData[i]]);
-             console.log(dbData[i]); 
+             //console.log(dbData[i]); 
           }
-          
-          var materialOptions = {
-            chart: {
-              title: 'Water Level and Temperature in Bottom Pond Throughout the Year'
-            },
-            width: 900,
-            height: 500,
+        
+        var classicOptions = {
+            width: '100%',
+            height: '400',
+            // Gives each series an axis that matches the vAxes number below.
             series: {
-              // Gives each series an axis name that matches the Y-axis below.
-              0: {axis: 'Temps'},
-              1: {axis: 'Level'}
+              0: {targetAxisIndex: 0},
+              1: {targetAxisIndex: 1}
             },
-            axes: {
-              // Adds labels to each axis; they don't have to match the axis names.
-              y: {
-                Temps: {label: 'Temps (Celsius)'},
-                Level: {label: 'Water Level CM'}
-              }
-            }
+            vAxes: {
+              // Adds titles to each axis.
+              0: {title: 'Temps (Celsius)'},
+              1: {title: 'Water Level'}
+            },
+            hAxis: {
+//              ticks: [new Date(2018, 1,1), new Date(2018, 1), new Date(2018, 2), new Date(2018, 3),
+//                      new Date(2018, 4),  new Date(2018, 5), new Date(2018, 6), new Date(2018, 7),
+//                      new Date(2018, 8), new Date(2018, 9), new Date(2018, 10), new Date(2018, 11)
+//                     ]
+            },
+            vAxes: {0: {viewWindowMode:'explicit',
+                      viewWindow:{
+                                  max:50,
+                                  min:-10
+                                  }
+                      },
+                  1: {viewWindow:{
+                                  max:150,
+                                  min:0
+                                  },},
+                  },
           };
 
-
-        var materialChart = new google.charts.Line(chartDiv);
-        materialChart.draw(data, materialOptions);
+        var classicChart = new google.visualization.LineChart(chartDiv);
+        classicChart.draw(data, classicOptions);
 
     };
 </script>

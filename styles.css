@@ -1,3 +1,54 @@
 body{
     font-family: sans-serif;
+    background-color: aqua;
+}
+
+h1{
+    font-weight: bold;
+    font-size: 25px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+h3{
+    font-weight: bold;
+    font-size: 20px;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.chartBackground{
+    width:100vw;
+    background-color: white;
+}
+
+.chartHolder{
+    width:900px;
+    margin:20px auto 20px auto;
+}
+
+.current{
+    display:block;
+    width:100%;
+    height:auto;
+    text-align: center;
+    padding: 0px 0px 10px 0px;
+    background-color: white;
+}
+
+.vals{
+    padding-bottom: 5px;
+}
+
+.testBox{
+    display: none;
+}
+
+@media screen and (max-width: 860px) {
+    
+.chartHolder{
+    width:400px;
+    margin:10px auto 10px auto;
+}
+    
 }

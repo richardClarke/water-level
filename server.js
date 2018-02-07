@@ -1,31 +1,11 @@
 'use strict';
 
 var bodyParser = require('body-parser');
-
 const express = require('express');
-//const socketIO = require('socket.io');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const INDEX = path.join(__dirname, 'index.html');
-
-//const app = express()
-//    .use((req, res) => res.sendFile(INDEX) )
-//    .use(express.static(__dirname))
-//    .use(bodyParser.json())
-//    .use(bodyParser.urlencoded({extended:false}))
-//    .use(function(req, res, next) {
-//        res.header("Access-Control-Allow-Origin", "*");
-//        res.header("Access-Control-Allow-Headers", "X-Requested-With");
-//        res.header("Access-Control-Allow-Headers", "Content-Type");
-//        res.header("Access-Control-Allow-Methods", "PUT, GET, POST, DELETE, OPTIONS")});
-//    //.listen(PORT, () => console.log(`Listening on ${ PORT }`));
-//
-//var http = require('http').Server(app)
-//var io = require('socket.io')(http)
-//var mongoose = require('mongoose')
-
-
 
 var app = express();
 
@@ -49,7 +29,7 @@ var mongoose = require('mongoose')
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
-var dbUrl = 'mongodb://richard:c0nvertib1e@ds225308.mlab.com:25308/waterlevel'
+var dbUrl = 'mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel'
 
 var Message = mongoose.model('Message', {
     level: String,
@@ -75,7 +55,9 @@ app.post('/messages', async (req,res) =>{
     
     try {
         var message = new Message(req.body)
-        console.log(message.level);
+        message.date = new Date();
+        console.log(message.date);
+        
         if (!message.level){
             return console.error("no level value");
         }         
@@ -83,7 +65,7 @@ app.post('/messages', async (req,res) =>{
 
         console.log("saved")
 
-        io.emit('message', req.body)
+        io.emit('message', message)
 
         res.sendStatus(200); // 200 is ok
 
