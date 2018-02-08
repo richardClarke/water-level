@@ -13,15 +13,9 @@
         </div>
         <div class="current">
             <h3>Last Recorded Values</h3>
-            <div class="buttonHolder">
-                <button id="last24" class="btn">Display Last 24 hours</button><br>
-                <button id="allData" class="btn">Display All Data</button>
-            </div>
-            <div class="dataHolder">
-                <div class="vals">Time = <span id="time">0</span></div>
-                <div class="vals">Water Level = <b><span id="waterLevel">0</span> cm</b></div>
-                <div class="vals">Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
-            </div>
+            <div class="vals">Time = <span id="time">0</span></div>
+            <div class="vals">Water Level = <b><span id="waterLevel">0</span> cm</b></div>
+            <div class="vals">Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
         </div>
     </div>
 
@@ -60,48 +54,8 @@
             console.log(message);
             postMessage(message);
         }) 
-        
-        $("#last24").click(()=>{
-            //clear all chart data 
-            dbData = [];
-            dataReady = false;
-            //start interval to check for chart data;
-            checkChart();
-            if (pathname == "http://localhost:3000/") {
-                $.get('http://localhost:3000/last24', (data) =>{
-                   data.forEach(last24Messages);
-                   dataReady = true; 
-                })      
-            } else {
-                $.get('https://waterlevel001.herokuapp.com/last24', (data) =>{
-                    data.forEach(last24Messages);
-                    dataReady = true;
-                })
-            } 
-        })
-        
-        $("#allData").click(()=>{
-            dbData = [];
-            dataReady = false;
-            checkChart();
-            getMessages();
-        })
-        
         getMessages();
     })
-    
-    function last24Messages(message){
-        
-        if (message.temp === undefined){message.temp = 0}
-        if (message.level === undefined){message.level = 0}
-        var inDate = new Date(message.date);
-                
-        var lineData = [];
-        lineData.push(inDate);
-        lineData.push(parseInt(message.level));
-        lineData.push(parseInt(message.temp));
-        dbData.push(lineData);
-    }
 
 
     
@@ -110,7 +64,6 @@
         console.log("check chart data");
         if (dataReady){
             clearInterval(dataInterval);
-            dataInterval = undefined;
             console.log("data ready");
             drawChart();
         } else {
@@ -198,7 +151,7 @@
               0: {title: 'Water Level (cm)'},
               1: {title: 'Temps (Celsius)'}
             },
-            hAxis: {title:'Time', showTextEvery : 5,
+            hAxis: {title:'Date', showTextEvery : 5,
                    gridlines: {
                     count: -1,
                     units: {
