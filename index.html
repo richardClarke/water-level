@@ -43,10 +43,11 @@
     var el = document.getElementById('server-time');
     var dataInterval = undefined;
     var firstLoop = true;
+    var currentChart = "last12";
     
     var pathname = window.location.href;
         
-    socket.on('message', getLast12hours); // everytime a new update is made update chart
+    socket.on('message', updateChart); // everytime a new update is made update chart
 
 //    socket.on('time', function(timeString) {
 //        el.innerHTML = 'Server time: ' + timeString;
@@ -76,7 +77,19 @@
         getLast12hours();
     })
     
+    function updateChart(){
+        if (currentChart == "last12"){
+            getLast12hours();
+        } else {
+            dbData = [];
+            dataReady = false;
+            checkChart();
+            getMessages();
+        }
+    }
+    
     function getLast12hours(){
+        currentChart = "last12";
         //clear all chart data 
         dbData = [];
         dataReady = false;
@@ -168,6 +181,8 @@
     
 
     function getMessages() { 
+        currentChart = "all";
+        
         if (pathname == "http://localhost:3000/") {
             $.get('http://localhost:3000/messages', (data) =>{
                data.forEach(addMessage);
