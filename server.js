@@ -47,10 +47,10 @@ app.get('/messages', (req,res) =>{
     }) 
 })
 
-app.get('/last24', (req,res) =>{
+app.get('/last12', (req,res) =>{
     Message.find({}, (err, messages) => {
         res.send(messages)
-    }).sort('-_id').limit(480); // 24 hours will 480 request at 5 minute intervals
+    }).sort('-_id').limit(144); // 12 hours will 144 request at 5 minute intervals
 })
 
 

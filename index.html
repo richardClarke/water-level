@@ -14,8 +14,8 @@
         <div class="current">
             <h3>Last Recorded Values</h3>
             <div class="buttonHolder">
-                <button id="last24" class="btn">Display Last 24 hours</button><br>
-                <button id="allData" class="btn">Display All Data</button>
+                <button id="allData" class="btn">Display All Data</button><br>
+                <button id="last12" class="btn">Display Last 12 hours</button>       
             </div>
             <div class="dataHolder">
                 <div class="vals">Time = <span id="time">0</span></div>
@@ -42,10 +42,11 @@
     var dataReady = false;
     var el = document.getElementById('server-time');
     var dataInterval = undefined;
+    var firstLoop = true;
     
     var pathname = window.location.href;
         
-    socket.on('message', addMessage)
+    socket.on('message', getLast12hours); // everytime a new update is made update chart
 
 //    socket.on('time', function(timeString) {
 //        el.innerHTML = 'Server time: ' + timeString;
@@ -61,23 +62,8 @@
             postMessage(message);
         }) 
         
-        $("#last24").click(()=>{
-            //clear all chart data 
-            dbData = [];
-            dataReady = false;
-            //start interval to check for chart data;
-            checkChart();
-            if (pathname == "http://localhost:3000/") {
-                $.get('http://localhost:3000/last24', (data) =>{
-                   data.forEach(last24Messages);
-                   dataReady = true; 
-                })      
-            } else {
-                $.get('https://waterlevel001.herokuapp.com/last24', (data) =>{
-                    data.forEach(last24Messages);
-                    dataReady = true;
-                })
-            } 
+        $("#last12").click(()=>{
+           getLast12hours(); 
         })
         
         $("#allData").click(()=>{
@@ -87,14 +73,45 @@
             getMessages();
         })
         
-        getMessages();
+        getLast12hours();
     })
     
-    function last24Messages(message){
-        
+    function getLast12hours(){
+        //clear all chart data 
+        dbData = [];
+        dataReady = false;
+        //start interval to check for chart data;
+        firstLoop = true;
+        checkChart();
+        if (pathname == "http://localhost:3000/") {
+            $.get('http://localhost:3000/last12', (data) =>{
+               data.forEach(last12Messages);
+               dataReady = true; 
+            })      
+        } else {
+            $.get('https://waterlevel001.herokuapp.com/last12', (data) =>{
+                data.forEach(last12Messages);
+                dataReady = true;
+            })
+        } 
+    }
+    
+    function last12Messages(message){
         if (message.temp === undefined){message.temp = 0}
         if (message.level === undefined){message.level = 0}
         var inDate = new Date(message.date);
+        
+        //data is reversed comming in so only update screen data on first loop through
+        if (firstLoop == true){
+            $("#waterLevel").html(message.level);
+            $("#temperature").html(message.temp);
+            
+            var minutes = inDate.getMinutes();
+            minutes = minutes > 9 ? minutes : '0' + minutes;
+
+            $("#time").html("<b>"+inDate.getDate()+" "+monthReturn(inDate.getMonth())+" "+inDate.getFullYear()+" @"+inDate.getHours()+":"+minutes+"</b>");
+            firstLoop = false;
+        }
                 
         var lineData = [];
         lineData.push(inDate);
@@ -137,7 +154,10 @@
         $("#waterLevel").html(message.level);
         $("#temperature").html(message.temp);
         
-        $("#time").html("<b>"+inDate.getDate()+" "+monthReturn(inDate.getMonth())+" "+inDate.getFullYear()+" @"+inDate.getHours()+":"+inDate.getMinutes()+"</b>");
+        var minutes = inDate.getMinutes();
+        minutes = minutes > 9 ? minutes : '0' + minutes;
+        
+        $("#time").html("<b>"+inDate.getDate()+" "+monthReturn(inDate.getMonth())+" "+inDate.getFullYear()+" @"+inDate.getHours()+":"+minutes+"</b>");
         
         var lineData = [];
         lineData.push(inDate);
