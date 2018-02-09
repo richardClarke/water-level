@@ -113,14 +113,24 @@ app.post('/messages', async (req,res) =>{
             var savedMessage = await message.save()
             console.log("saved")
             console.log("water level at "+message.level);
-            if (message.level <= lowLevelWaterReading && smsStatus == 'Active' && SMSMessageNum == 0){
-               nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult); 
-                console.log("sms message sent");
-            } else {
-                console.log("sms low level criteria not met");
-            }
+            //console.log("sms =  "+smsStatus);
+            //console.log("level = "+message.level)
+           // console.log("low level = "+lowLevelWaterReading)
             
-            if (message.level <= lowLevelWaterReading && smsStatus == 'Active'){
+            if (parseInt(message.level) < lowLevelWaterReading){
+                //console.log("met low level water criteria")
+                if (smsStatus == 'Active'){
+                    //console.log("sms status is active ");
+                    if (SMSMessageNum == 0){
+                        //console.log("sms MessageNum = 0");
+                        nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult); 
+                        console.log("sms message sent");
+                    }
+                }
+               
+            } 
+            
+            if (parseInt(message.level) <= lowLevelWaterReading && smsStatus == 'Active'){
                 SMSMessageNum++;
                 io.emit('smsDelays', SMSMessageNum,SMSMessageDelay); 
                 if (SMSMessageNum == SMSMessageDelay){SMSMessageNum = 0}; // used to stop constant sms messages
