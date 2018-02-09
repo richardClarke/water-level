@@ -106,10 +106,7 @@ app.post('/messages', async (req,res) =>{
         var message = new Message(req.body)
         message.date = new Date();
         console.log(message.date);
-        
-        //Empty Water level registers 27 so height above this is current level. 
-        message.level = 27-message.level;
-        
+                
         if (!message.level){
             return console.error("no level value");
         } else{
