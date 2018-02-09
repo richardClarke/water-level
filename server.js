@@ -115,6 +115,9 @@ app.post('/messages', async (req,res) =>{
             console.log("water level at "+message.level);
             if (message.level <= lowLevelWaterReading && smsStatus == 'Active' && SMSMessageNum == 0){
                nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult); 
+                console.log("sms message sent");
+            } else {
+                console.log("sms low level criteria not met");
             }
             
             if (message.level <= lowLevelWaterReading && smsStatus == 'Active'){
