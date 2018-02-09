@@ -14,13 +14,19 @@
         <div class="current">
             <h3>Last Recorded Values</h3>
             <div class="buttonHolder">
-                <button id="allData" class="btn">Display All Data</button><br>
-                <button id="last12" class="btn">Display Last 12 hours</button>       
+                <input id="lowLevelInput" class="inputLevel" placeholder="Low Water Level">
+                <button id="lowLevelUpdate" class="btn btn-success">Update Low Water Level</button><br>
+                <button id="allData" class="btn">Display All Data</button>
+                <button id="last12" class="btn">Display Last 12 hours</button><br>
+                <button id="smsToggle" class="btn">Toggle SMS Sending</button>
             </div>
             <div class="dataHolder">
                 <div class="vals">Time = <span id="time">0</span></div>
-                <div class="vals">Water Level = <b><span id="waterLevel">0</span> cm</b></div>
+                <div class="vals">Low Level Set To = <b><span id="lowLevelReading">0</span> cm</b></div>
+                <div class="vals">Current Water Level = <b><span id="waterLevel">0</span> cm</b></div>
                 <div class="vals">Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
+                <div class="vals">SMS Messaging = <b><span id="SMS">0</span></b></div>
+                <div class="vals">SMS Delay = <b><span id="SMSDelay">0</span></b></div>
             </div>
         </div>
     </div>
@@ -44,11 +50,27 @@
     var dataInterval = undefined;
     var firstLoop = true;
     var currentChart = "last12";
+    var _localSMS_Status = "";
     
     var pathname = window.location.href;
         
     socket.on('message', updateChart); // everytime a new update is made update chart
-
+    socket.on('sms', function(_serverSMS_Status) {
+        $("#SMS").html(_serverSMS_Status);
+        _localSMS_Status = _serverSMS_Status;
+    });
+    
+    socket.on('lowWater', function(_serverWaterLevel) {
+        $("#lowLevelReading").html(_serverWaterLevel);
+        $("#lowLevelInput").val(_serverWaterLevel);
+    });
+    
+    socket.on('smsDelays', function(currentSMSDelay,TotalSMSDelay) {  
+        $("#SMSDelay").html("updates till next SMS "+currentSMSDelay+" of "+TotalSMSDelay);
+    });
+    
+    
+    
 //    socket.on('time', function(timeString) {
 //        el.innerHTML = 'Server time: ' + timeString;
 //    });
@@ -73,6 +95,36 @@
             checkChart();
             getMessages();
         })
+        
+        $("#smsToggle").click(()=>{
+            
+            if (_localSMS_Status == "Active"){
+                _localSMS_Status = "Disabled";
+            } else {
+                _localSMS_Status = "Active";
+            }
+            
+           var updateSMS_Status = {'status':_localSMS_Status};
+            
+           if (pathname == "http://localhost:3000/") {
+                $.post('http://localhost:3000/sms', updateSMS_Status);
+            } else {
+               $.post('https://waterlevel001.herokuapp.com/sms', updateSMS_Status); 
+            } 
+        })
+        
+        $("#lowLevelUpdate").click(()=>{
+            
+           newLowLevel = $("#lowLevelInput").val();
+            
+           var updateLevel = {'lowLevel':newLowLevel};
+            
+           if (pathname == "http://localhost:3000/") {
+                $.post('http://localhost:3000/waterLevel', updateLevel);
+            } else {
+               $.post('https://waterlevel001.herokuapp.com/waterLevel', updateLevel); 
+            } 
+        }) 
         
         getLast12hours();
     })
@@ -113,10 +165,7 @@
         if (message.temp === undefined){message.temp = 0}
         if (message.level === undefined){message.level = 0}
         var inDate = new Date(message.date);
-        
-        //length of pipe and sensor is 27CM so if water is empty will read 27
-        message.level = 27-message.level;
-        
+            
         //data is reversed comming in so only update screen data on first loop through
         if (firstLoop == true){
             $("#waterLevel").html(message.level);
@@ -164,9 +213,6 @@
         if (message.temp === undefined){message.temp = 0}
         if (message.level === undefined){message.level = 0}
         var inDate = new Date(message.date);
-        
-        //length of pipe and sensor is 27CM so if water is empty will read 27
-        message.level = 27-message.level;
         
         // instead of append only replace the line to show last recorded level
         //$("#messages").append(`<h7> ${message.level} ${message.temp} ${message.date} </h7>`);

@@ -28,7 +28,12 @@ var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var mongoose = require('mongoose')
 
-
+///////SMS///////////
+var smsStatus = 'Disabled';
+var SMSMessageNum = 0;
+var SMSMessageDelay = 143; // assuming 1 update every 10 minutes delay sms to max 1 a day means resetting after 143
+/////////////////////
+var lowLevelWaterReading = 5;
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
@@ -56,6 +61,41 @@ app.get('/last12', (req,res) =>{
     }).sort('-_id').limit(144); // 12 hours will 144 request at 5 minute intervals
 })
 
+app.post('/sms',  async (req,res) =>{
+    var inStatus = req.body;
+    console.log("updating SMS status to "+inStatus.status);
+    
+    smsStatus = inStatus.status;
+    
+    SMSMessageNum = 0; //reset sms delay
+    
+    try {
+        io.emit('sms', smsStatus);
+        res.sendStatus(200); // 200 is ok
+    } catch (error) { 
+        res.sendStatus(500);
+        return console.error(error)
+    }
+
+})
+
+app.post('/waterLevel',  async (req,res) =>{
+    var inData = req.body;
+    console.log("updating low water level to "+inData.lowLevel);
+    
+    lowLevelWaterReading = inData.lowLevel;
+    
+    try {
+        io.emit('lowWater', lowLevelWaterReading); 
+        res.sendStatus(200); // 200 is ok
+    } catch (error) { 
+        res.sendStatus(500);
+        return console.error(error)
+    }
+
+})
+
+
 
 app.post('/messages', async (req,res) =>{
     
@@ -67,22 +107,27 @@ app.post('/messages', async (req,res) =>{
         message.date = new Date();
         console.log(message.date);
         
+        //Empty Water level registers 27 so height above this is current level. 
+        message.level = 27-message.level;
+        
         if (!message.level){
             return console.error("no level value");
         } else{
             var savedMessage = await message.save()
             console.log("saved")
             console.log("water level at "+message.level);
-            if (message.level == 27){
+            if (message.level <= lowLevelWaterReading && smsStatus == 'Active' && SMSMessageNum == 0){
                nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult); 
+            }
+            
+            if (message.level <= lowLevelWaterReading && smsStatus == 'Active'){
+                SMSMessageNum++;
+                if (SMSMessageNum == SMSMessageDelay){SMSMessageNum = 0}; // used to stop constant sms messages 
             }
             
             io.emit('message', message)
             res.sendStatus(200); // 200 is ok
-            
-            //check level is low send sms
-            
-            //nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult);
+
         }        
         
 
@@ -97,9 +142,16 @@ app.post('/messages', async (req,res) =>{
 io.on('connection', (socket) => {
   console.log('Client connected');
   socket.on('disconnect', () => console.log('Client disconnected'));
+  io.emit('sms', smsStatus);
+  io.emit('lowWater', lowLevelWaterReading); 
+  io.emit('smsDelays', SMSMessageNum,SMSMessageDelay);  
+    
 });
 
 //setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+
+//setInterval(() => io.emit('sms', smsStatus), 3000);
+
 
 function sendResult(err, res) {
    console.log('SMS Sent:', 'Nexmo Data', res);
