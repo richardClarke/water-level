@@ -114,6 +114,9 @@
         if (message.level === undefined){message.level = 0}
         var inDate = new Date(message.date);
         
+        //length of pipe and sensor is 27CM so if water is empty will read 27
+        message.level = 27-message.level;
+        
         //data is reversed comming in so only update screen data on first loop through
         if (firstLoop == true){
             $("#waterLevel").html(message.level);
@@ -161,6 +164,9 @@
         if (message.temp === undefined){message.temp = 0}
         if (message.level === undefined){message.level = 0}
         var inDate = new Date(message.date);
+        
+        //length of pipe and sensor is 27CM so if water is empty will read 27
+        message.level = 27-message.level;
         
         // instead of append only replace the line to show last recorded level
         //$("#messages").append(`<h7> ${message.level} ${message.temp} ${message.date} </h7>`);

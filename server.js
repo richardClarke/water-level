@@ -1,5 +1,8 @@
 'use strict';
 
+var Nexmo = require('./lib/Nexmo');
+var config = require('./config.js');
+
 var bodyParser = require('body-parser');
 const express = require('express');
 const path = require('path');
@@ -69,8 +72,17 @@ app.post('/messages', async (req,res) =>{
         } else{
             var savedMessage = await message.save()
             console.log("saved")
+            console.log("water level at "+message.level);
+            if (message.level == 27){
+               nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult); 
+            }
+            
             io.emit('message', message)
             res.sendStatus(200); // 200 is ok
+            
+            //check level is low send sms
+            
+            //nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult);
         }        
         
 
@@ -87,6 +99,20 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
 
-setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+//setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
+
+function sendResult(err, res) {
+   console.log('SMS Sent:', 'Nexmo Data', res);
+}
+
+var nexmo = new Nexmo({
+   apiKey: config.API_KEY, 
+   apiSecret: config.API_SECRET
+},
+  {debug: config.DEBUG}
+);
+  
+ 
+
 
 var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`));

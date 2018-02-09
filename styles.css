@@ -59,7 +59,7 @@ h3{
 }
 
 .testBox{
-    display: none;
+/*    display: none;*/
 }
 
 @media screen and (max-width: 860px) {
