@@ -12,4 +12,6 @@ var config = {
   DEBUG: process.env.DEBUG === 'true'
 };
 
+// API_KEY and Secret now moved to heroku environmental variables for security
+
 module.exports = config;
