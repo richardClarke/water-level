@@ -37,7 +37,8 @@ var lowLevelWaterReading = 5;
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
-var dbUrl = 'mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel'
+var dbUrl = process.env.MONGO_DB; //
+//var dbUrl = 'mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel'
 
 var Message = mongoose.model('Message', {
     level: String,
