@@ -35,6 +35,8 @@ var SMSMessageDelay = 143; // assuming 1 update every 10 minutes delay sms to ma
 /////////////////////
 var lowLevelWaterReading = 5;
 
+console.log("envAPI = "+config.API_KEY);
+
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
 var dbUrl = process.env.MONGO_DB; //
