@@ -41,9 +41,12 @@ mongoose.Promise = Promise;// used to override mongoose version of promise with 
 // data base url moved to heroku environmental variable
 var dbUrl = process.env.MONGO_DB; //
 
+
 var Message = mongoose.model('Message', {
     level: String,
     temp: String,
+    humidity: String,
+    water: String,
     date:String
 })
 
@@ -115,6 +118,9 @@ app.post('/messages', async (req,res) =>{
             var savedMessage = await message.save()
             console.log("saved")
             console.log("water level at "+message.level);
+            console.log("temp outside "+message.temp);
+            console.log("humidity "+message.humidity);
+            console.log("water temp "+message.water);
             //console.log("sms =  "+smsStatus);
             //console.log("level = "+message.level)
            // console.log("low level = "+lowLevelWaterReading)
