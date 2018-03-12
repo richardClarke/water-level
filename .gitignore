@@ -1,4 +1,8 @@
 #node modules folder
 node_modules/
 /.env
+<<<<<<< HEAD
 /my.env
+=======
+/my.env
+>>>>>>> 9913666797b9ca7a49b69c9f73a8c5dc9f695a50
