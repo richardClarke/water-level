@@ -9,9 +9,11 @@ var config = {
   MEDIA_ID: process.env.MEDIA_ID || '',
   APP_ID: process.env.APP_ID || '',
   PRIVATE_KEY: process.env.PRIVATE_KEY || '',
+  MONGO_DB: process.env.MONGO_DB || '',
   DEBUG: process.env.DEBUG === 'true'
 };
 
 // API_KEY and Secret now moved to heroku environmental variables for security
 
 module.exports = config;
+ 

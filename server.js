@@ -38,8 +38,11 @@ var lowLevelWaterReading = 5;
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
+
 // data base url moved to heroku environmental variable
-var dbUrl = process.env.MONGO_DB; //
+var dbUrl = config.MONGO_DB; //
+console.log(config.MONGO_DB)
+//var dbUrl = "mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel"; //
 
 
 var Message = mongoose.model('Message', {
@@ -186,6 +189,6 @@ var nexmo = new Nexmo({
 );
   
  
-
+//console.log(process.env);
 
 var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`));
