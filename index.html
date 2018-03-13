@@ -97,6 +97,7 @@
         
         $("#allData").click(()=>{
             dbData = [];
+            dbData2 = [];
             dataReady = false;
             checkChart();
             getMessages();
@@ -140,6 +141,7 @@
             getLast12hours();
         } else {
             dbData = [];
+            dbData2 = [];
             dataReady = false;
             checkChart();
             getMessages();
@@ -150,6 +152,7 @@
         currentChart = "last12";
         //clear all chart data 
         dbData = [];
+        dbData2 = [];
         dataReady = false;
         //start interval to check for chart data;
         firstLoop = true;
