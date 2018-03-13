@@ -40,8 +40,9 @@ mongoose.Promise = Promise;// used to override mongoose version of promise with 
 
 
 // data base url moved to heroku environmental variable
-var dbUrl = config.MONGO_DB; //
-console.log(config.MONGO_DB)
+var dbUrl = config.MONGO_DB;
+//console.log(config.MONGO_DB)
+
 //var dbUrl = "mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel"; //
 
 
@@ -60,13 +61,13 @@ mongoose.connect(dbUrl, (err) => {
 app.get('/messages', (req,res) =>{
     Message.find({}, (err, messages) => {
         res.send(messages)
-    }) 
+    })
 })
 
 app.get('/last12', (req,res) =>{
-    Message.find({}, (err, messages) => {
+    Message.find().sort('-_id').limit(144).exec(function(err, messages){
         res.send(messages)
-    }).sort('-_id').limit(144); // 12 hours will 144 request at 5 minute intervals
+    });
 })
 
 app.post('/sms',  async (req,res) =>{

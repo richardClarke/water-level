@@ -11,6 +11,9 @@
         <div class="chartHolder">
             <div id="chart_div"></div>
         </div>
+        <div class="chartHolder">
+            <div id="chart_div2"></div>
+        </div>
         <div class="current">
             <h3>Last Recorded Values</h3>
             <div class="buttonHolder">
@@ -24,7 +27,9 @@
                 <div class="vals">Time = <span id="time">0</span></div>
                 <div class="vals">Low Level Set To = <b><span id="lowLevelReading">0</span> cm</b></div>
                 <div class="vals">Current Water Level = <b><span id="waterLevel">0</span> cm</b></div>
-                <div class="vals">Temperature = <b><span id="temperature">0</span> (celsius)</b></div>
+                <div class="vals">Temperature = <b><span id="temperature">0</span> °C</b></div>
+                <div class="vals">Humidity = <b><span id="humidity">0</span> %</b></div>
+                <div class="vals">Water Temp = <b><span id="water">0</span> °C</b></div>
                 <div class="vals">SMS Messaging = <b><span id="SMS">0</span></b></div>
                 <div class="vals">SMS Delay = <b><span id="SMSDelay">0</span></b></div>
             </div>
@@ -45,6 +50,7 @@
 <script>
     var socket = io()
     var dbData = []; 
+    var dbData2 = []; 
     var dataReady = false;
     var el = document.getElementById('server-time');
     var dataInterval = undefined;
@@ -170,6 +176,11 @@
         if (firstLoop == true){
             $("#waterLevel").html(message.level);
             $("#temperature").html(message.temp);
+            $("#humidity").html(message.humidity);
+            $("#water").html(message.water);
+            
+            console.log("humiidtiy "+message.humidity);
+            console.log("level "+message.level);
             
             var minutes = inDate.getMinutes();
             minutes = minutes > 9 ? minutes : '0' + minutes;
@@ -179,10 +190,17 @@
         }
                 
         var lineData = [];
+        var lineData2 = [];
         lineData.push(inDate);
         lineData.push(parseInt(message.level));
         lineData.push(parseInt(message.temp));
+        
+        lineData2.push(inDate);
+        lineData2.push(parseInt(message.humidity));
+        lineData2.push(parseInt(message.water));
+        
         dbData.push(lineData);
+        dbData2.push(lineData2);
     }
 
 
@@ -195,6 +213,7 @@
             dataInterval = undefined;
             console.log("data ready");
             drawChart();
+            drawChart2();
         } else {
             console.log("waiting for all data");
             if (dataInterval == undefined){
@@ -202,6 +221,7 @@
             }
         }
     }
+
         
     function monthReturn(inMonth){
         var monthArray = ["January","February","March","April","May","June","July","August","September","October","November","December"]
@@ -218,6 +238,8 @@
         //$("#messages").append(`<h7> ${message.level} ${message.temp} ${message.date} </h7>`);
         $("#waterLevel").html(message.level);
         $("#temperature").html(message.temp);
+        $("#humidity").html(message.humidity);
+        $("#water").html(message.water);
         
         var minutes = inDate.getMinutes();
         minutes = minutes > 9 ? minutes : '0' + minutes;
@@ -225,10 +247,17 @@
         $("#time").html("<b>"+inDate.getDate()+" "+monthReturn(inDate.getMonth())+" "+inDate.getFullYear()+" @"+inDate.getHours()+":"+minutes+"</b>");
         
         var lineData = [];
+        var lineData2 = [];
         lineData.push(inDate);
         lineData.push(parseInt(message.level));
         lineData.push(parseInt(message.temp));
+        
+        lineData2.push(inDate);
+        lineData2.push(parseInt(message.humidity));
+        lineData2.push(parseInt(message.water));
+        
         dbData.push(lineData);
+        dbData2.push(lineData2);
     }
     
 
@@ -302,9 +331,57 @@
                    
                 },
           };
-
+        
         var classicChart = new google.visualization.LineChart(chartDiv);
         classicChart.draw(data, classicOptions);
+    }
+        
+        function drawChart2() {
+
+          var chartDiv2 = document.getElementById('chart_div2');
+
+          var data2 = new google.visualization.DataTable();
+          data2.addColumn('datetime', 'Time');
+          data2.addColumn('number', "Humidity %");
+          data2.addColumn('number', "Water Temperature (Celsius)");
+          
+          for(var i=0; i<dbData2.length; i++){
+             data2.addRows([dbData2[i]]);
+          }
+        
+        var classicOptions2 = {
+            width: '100%',
+            height: '400',
+            // Gives each series an axis that matches the vAxes number below.
+            series: {
+              0: {targetAxisIndex: 0},
+              1: {targetAxisIndex: 1}
+            },
+            vAxes: {
+              // Adds titles to each axis.
+              0: {title: 'Humidity %'},
+              1: {title: 'Water Temp (Celsius)'}
+            },
+            hAxis: {title:'Time', showTextEvery : 5,
+                   gridlines: {
+                    count: -1,
+                    units: {
+                      days: {format: ['MMM dd']},
+                      hours: {format: ['HH:mm', 'ha']},
+                    }
+                  },
+                  minorGridlines: {
+                    units: {
+                      hours: {format: ['hh:mm:ss a', 'ha']},
+                      minutes: {format: ['HH:mm a Z', ':mm']}
+                    }
+                  }
+                   
+                },
+          };
+            
+        var classicChart2 = new google.visualization.LineChart(chartDiv2);
+        classicChart2.draw(data2, classicOptions2);
 
     };
 </script>
