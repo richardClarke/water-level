@@ -44,7 +44,9 @@ var dbUrl = config.MONGO_DB;
 //console.log(config.MONGO_DB)
 
 //var dbUrl = "mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel"; //
-
+console.log("DB= "+dbUrl);
+console.log("API KEY="+config.API_KEY)
+console.log("API Secret="+config.API_SECRET)
 
 var Message = mongoose.model('Message', {
     level: String,
