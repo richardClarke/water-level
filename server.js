@@ -2,6 +2,7 @@
 
 var Nexmo = require('./lib/Nexmo');
 var config = require('./config.js');
+var fs = require('fs');
 
 var bodyParser = require('body-parser');
 const express = require('express');
@@ -28,13 +29,17 @@ var http = require('http').Server(app)
 var io = require('socket.io')(http)
 var mongoose = require('mongoose')
 
+var jsonData = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
+
+//console.log(jsonData.waterSettings.lowlevel);
+//console.log(jsonData.waterSettings.sms);
+
 ///////SMS///////////
-var smsStatus = 'Active';
+var smsStatus = jsonData.waterSettings.sms;
 var SMSMessageNum = 0;
 var SMSMessageDelay = 96; // assuming 1 update every 15 minutes delay sms to max 1 a day means resetting after 96
 /////////////////////
-var lowLevelWaterReading = 3;
-
+var lowLevelWaterReading = jsonData.waterSettings.lowlevel;
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
 
@@ -76,6 +81,10 @@ app.post('/sms',  async (req,res) =>{
     
     SMSMessageNum = 0; //reset sms delay
     
+    jsonData.waterSettings.sms = smsStatus;
+    var jsonWrite = JSON.stringify(jsonData);
+    fs.writeFile('settings.json', jsonWrite, 'utf8', updatedJson);
+    
     try {
         io.emit('sms', smsStatus);
         res.sendStatus(200); // 200 is ok
@@ -91,6 +100,10 @@ app.post('/waterLevel',  async (req,res) =>{
     console.log("updating low water level to "+inData.lowLevel);
     
     lowLevelWaterReading = inData.lowLevel;
+    
+    jsonData.waterSettings.lowlevel = lowLevelWaterReading;
+    var jsonWrite = JSON.stringify(jsonData);
+    fs.writeFile('settings.json', jsonWrite, 'utf8', updatedJson);
     
     try {
         io.emit('lowWater', lowLevelWaterReading); 
@@ -174,6 +187,10 @@ io.on('connection', (socket) => {
 //setInterval(() => io.emit('time', new Date().toTimeString()), 1000);
 
 //setInterval(() => io.emit('sms', smsStatus), 3000);
+
+function updatedJson(){
+    console.log("data updated");
+}
 
 
 function sendResult(err, res) {
