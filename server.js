@@ -29,11 +29,11 @@ var io = require('socket.io')(http)
 var mongoose = require('mongoose')
 
 ///////SMS///////////
-var smsStatus = 'Disabled';
+var smsStatus = 'Active';
 var SMSMessageNum = 0;
-var SMSMessageDelay = 143; // assuming 1 update every 10 minutes delay sms to max 1 a day means resetting after 143
+var SMSMessageDelay = 96; // assuming 1 update every 15 minutes delay sms to max 1 a day means resetting after 96
 /////////////////////
-var lowLevelWaterReading = 5;
+var lowLevelWaterReading = 3;
 
 
 mongoose.Promise = Promise;// used to override mongoose version of promise with updated es6 version
@@ -43,10 +43,6 @@ mongoose.Promise = Promise;// used to override mongoose version of promise with 
 var dbUrl = config.MONGO_DB;
 //console.log(config.MONGO_DB)
 
-//var dbUrl = "mongodb://richardc:waterlevel@ds225308.mlab.com:25308/waterlevel"; //
-console.log("DB= "+dbUrl);
-console.log("API KEY="+config.API_KEY)
-console.log("API Secret="+config.API_SECRET)
 
 var Message = mongoose.model('Message', {
     level: String,
