@@ -37,7 +37,7 @@ var jsonData = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
 ///////SMS///////////
 var smsStatus = jsonData.waterSettings.sms;
 var SMSMessageNum = 0;
-var SMSMessageDelay = 96; // assuming 1 update every 15 minutes delay sms to max 1 a day means resetting after 96
+var SMSMessageDelay = 24; // assuming 1 update every 15 minutes delay sms to max 1 a day means resetting after 96
 /////////////////////
 var lowLevelWaterReading = jsonData.waterSettings.lowlevel;
 
