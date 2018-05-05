@@ -68,7 +68,7 @@ app.get('/messages', (req,res) =>{
 })
 
 app.get('/last12', (req,res) =>{
-    Message.find().sort('-_id').limit(96).exec(function(err, messages){  //last 24 hours at 1 record every 15 minutes
+    Message.find().sort('-_id').limit(24).exec(function(err, messages){  //last 24 hours at 1 record every 15 minutes
         res.send(messages)
     });
 })
