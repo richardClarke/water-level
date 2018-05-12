@@ -37,7 +37,7 @@ var jsonData = JSON.parse(fs.readFileSync('settings.json', 'utf8'));
 ///////SMS///////////
 var smsStatus = jsonData.waterSettings.sms;
 var SMSMessageNum = 0;
-var SMSMessageDelay = 24; // assuming 1 update every 15 minutes delay sms to max 1 a day means resetting after 96
+var SMSMessageDelay = 12; // assuming 1 update every 15 minutes delay sms to max 1 a day means resetting after 96
 /////////////////////
 var lowLevelWaterReading = jsonData.waterSettings.lowlevel;
 
@@ -95,6 +95,8 @@ app.post('/sms',  async (req,res) =>{
 
 })
 
+
+
 app.post('/waterLevel',  async (req,res) =>{
     var inData = req.body;
     console.log("updating low water level to "+inData.lowLevel);
@@ -107,6 +109,20 @@ app.post('/waterLevel',  async (req,res) =>{
     
     try {
         io.emit('lowWater', lowLevelWaterReading); 
+        res.sendStatus(200); // 200 is ok
+    } catch (error) { 
+        res.sendStatus(500);
+        return console.error(error)
+    }
+
+})
+
+app.post('/resetSMS',  async (req,res) =>{
+    
+    SMSMessageNum = 0;
+    
+    try {
+        io.emit('smsReset', SMSMessageDelay); 
         res.sendStatus(200); // 200 is ok
     } catch (error) { 
         res.sendStatus(500);
@@ -130,7 +146,7 @@ app.post('/messages', async (req,res) =>{
         if (!message.level){
             return console.error("no level value");
         } else{
-            var savedMessage = await message.save()
+            //var savedMessage = await message.save()
             console.log("saved")
             console.log("water level at "+message.level);
             console.log("temp outside "+message.temp);
@@ -148,7 +164,7 @@ app.post('/messages', async (req,res) =>{
                         //console.log("sms MessageNum = 0");
                         nexmo.message.sendSms(config.FROM_NUMBER, config.TO_NUMBER, 'Water level now running low', sendResult); 
                         console.log("sms message sent");
-                    }
+                   }
                 }
                
             } 
@@ -205,6 +221,7 @@ var nexmo = new Nexmo({
 );
   
  
-//console.log(process.env);
+//console.log(config.API_KEY);
+//console.log(config.API_SECRET);
 
 var server = http.listen(PORT, () => console.log(`Listening on ${ PORT }`));

@@ -21,6 +21,7 @@
                 <button id="lowLevelUpdate" class="btn btn-success">Update Low Water Level</button><br>
                 <button id="allData" class="btn">Display All Data</button>
                 <button id="last12" class="btn">Display Last 24 hours</button><br>
+                <button id="resetSMS" class="btn">Reset SMS Sending</button>
                 <button id="smsToggle" class="btn">Toggle SMS Sending</button>
             </div>
             <div class="dataHolder">
@@ -74,6 +75,13 @@
     socket.on('smsDelays', function(currentSMSDelay,TotalSMSDelay) {  
         $("#SMSDelay").html("updates delay SMS "+currentSMSDelay+" of "+TotalSMSDelay);
     });
+    
+    socket.on('smsReset', function(TotalSMSDelay) {  
+        console.log("heard restet");
+        $("#SMSDelay").html("updates delay SMS 0 of "+TotalSMSDelay);
+    });
+    
+    
     
     
     
@@ -131,7 +139,19 @@
             } else {
                $.post('https://waterlevel001.herokuapp.com/waterLevel', updateLevel); 
             } 
-        }) 
+        })
+        
+        $("#resetSMS").click(()=>{
+            
+            
+           if (pathname == "http://localhost:3000/") {
+                $.post('http://localhost:3000/resetSMS');
+            } else {
+               $.post('https://waterlevel001.herokuapp.com/resetSMS'); 
+            } 
+        })
+        
+        
         
         getLast12hours();
     })
