@@ -146,7 +146,7 @@ app.post('/messages', async (req,res) =>{
         if (!message.level){
             return console.error("no level value");
         } else{
-            //var savedMessage = await message.save()
+            var savedMessage = await message.save()
             console.log("saved")
             console.log("water level at "+message.level);
             console.log("temp outside "+message.temp);
