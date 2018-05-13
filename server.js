@@ -169,7 +169,7 @@ app.post('/messages', async (req,res) =>{
                
             } 
             
-            if (parseInt(message.level) <= lowLevelWaterReading && smsStatus == 'Active'){
+            if (parseInt(message.level) < lowLevelWaterReading && smsStatus == 'Active'){
                 SMSMessageNum++;
                 io.emit('smsDelays', SMSMessageNum,SMSMessageDelay); 
                 if (SMSMessageNum == SMSMessageDelay){SMSMessageNum = 0}; // used to stop constant sms messages
