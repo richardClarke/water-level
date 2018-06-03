@@ -18,9 +18,11 @@
             <h3>Last Recorded Values</h3>
             <div class="buttonHolder">
                 <input id="lowLevelInput" class="inputLevel" placeholder="Low Water Level">
-                <button id="lowLevelUpdate" class="btn btn-success">Update Low Water Level</button><br>
+                <button id="lowLevelUpdate" class="btn btn-success">Set Low Water Level Warning</button><br>
                 <button id="allData" class="btn">Display All Data</button>
                 <button id="last12" class="btn">Display Last 24 hours</button><br>
+                <button id="last7days" class="btn">Display Last 7 days</button>
+                <button id="lastMonth" class="btn">Display Last Month</button><br>
                 <button id="resetSMS" class="btn">Reset SMS Sending</button>
                 <button id="smsToggle" class="btn">Toggle SMS Sending</button>
             </div>
@@ -103,6 +105,14 @@
            getLast12hours(); 
         })
         
+        $("#last7days").click(()=>{
+           getLast7days(); 
+        })
+        
+        $("#lastMonth").click(()=>{
+           getLastMonth(); 
+        })
+
         $("#allData").click(()=>{
             dbData = [];
             dbData2 = [];
@@ -167,6 +177,54 @@
             getMessages();
         }
     }
+    
+    function getLast7days(){
+        currentChart = "last7";
+        //clear all chart data 
+        dbData = [];
+        dbData2 = [];
+        dataReady = false;
+        //start interval to check for chart data;
+        firstLoop = true;
+        checkChart();
+        if (pathname == "http://localhost:3000/") {
+            $.get('http://localhost:3000/last7', (data) =>{
+               data.forEach(last12Messages);
+               dataReady = true; 
+            })      
+        } else {
+            $.get('https://waterlevel001.herokuapp.com/last7', (data) =>{
+                data.forEach(last12Messages);
+                dataReady = true;
+            })
+        } 
+    }
+    
+    function getLastMonth(){
+        currentChart = "lastmonth";
+        //clear all chart data 
+        dbData = [];
+        dbData2 = [];
+        dataReady = false;
+        //start interval to check for chart data;
+        firstLoop = true;
+        checkChart();
+        if (pathname == "http://localhost:3000/") {
+            $.get('http://localhost:3000/lastmonth', (data) =>{
+               data.forEach(last12Messages);
+               dataReady = true; 
+            })      
+        } else {
+            $.get('https://waterlevel001.herokuapp.com/lastmonth', (data) =>{
+                data.forEach(last12Messages);
+                dataReady = true;
+            })
+        } 
+    }
+    
+    
+    
+    
     
     function getLast12hours(){
         currentChart = "last12";
